@@ -1,14 +1,10 @@
+from typing import List
 import json
 from ninja import Router
-from typing import List, Optional, Dict
 from apps.authentication.models import UserModel
 from .schema import AuthSchema, JWTPairSchema, Error, Success, CreateUserInputSchema, UserOutputSchema, ChangePasswordUserInputSchema
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from typing import Any, Optional
-from django.http import HttpRequest
-from ninja.security import HttpBearer
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from uuid import UUID
@@ -16,18 +12,7 @@ from uuid import UUID
 router = Router()
 
 # It's a subclass of the `HttpBearer` class that comes with the `flask-jwt-extended` library
-class JWTAuthRequired(HttpBearer):
-    def authenticate(self, request: HttpRequest, token: str) -> Optional[Any]:
-        jwt_authenticator = JWTAuthentication()
-        try:
-            response = jwt_authenticator.authenticate(request)
-            if response is not None:
-                return True # 200 OK
-            return False # 401
-        except Exception:
-            # Any exception we want it to return False i.e 401
-            return False
-
+class AuthenticationMethodView:
     @router.post('/login', response={200: JWTPairSchema, 401: Error}, auth=None)
     def login(request, auth: AuthSchema):
         """
@@ -48,39 +33,6 @@ class JWTAuthRequired(HttpBearer):
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             }
-        
-    @router.post('/create-user', response={200: Success, 500: Error})
-    def create_user(request, payload: CreateUserInputSchema):
-        """
-        It creates a user with the given email and password
-        
-        :param request: The request object
-        :param payload: CreateUserInputSchema
-        :type payload: CreateUserInputSchema
-        :return: A tuple of two values.
-        """
-        try:
-            UserModel.objects.create(
-                email=payload.email,
-                password=make_password(payload.password),
-            )
-            return 200, {"message": "successfully created account."}
-        except:
-            return 500, {"message": "error on creating user!"}
-        
-    @router.get("/users", response=List[UserOutputSchema])
-    def get_user_list(request):
-        """
-        It returns a list of all users in the database
-        
-        :param request: The request object
-        :return: A list of users
-        """
-        try:
-            users=UserModel.objects.all()
-            return users
-        except UserModel.DoesNotExist as e:
-            return 404, {"message": "Transactions does not exists"}
 
     @router.put('/change-password/{public_id}', response={200: Success, 500: Error})
     def change_password(request, public_id: UUID, payload: ChangePasswordUserInputSchema):

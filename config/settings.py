@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
 CREATED_APPS = [
     'apps.base',
     'apps.authentication',
+    'apps.users'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + CREATED_APPS
