@@ -21,6 +21,7 @@ class UsersMethodView:
             UserModel.objects.create(
                 email=payload.email,
                 password=make_password(payload.password),
+                role=payload.role
             )
             return 200, {"message": "successfully created account."}
         except:

@@ -1,8 +1,7 @@
-from typing import List
 import json
 from ninja import Router
 from apps.authentication.models import UserModel
-from .schema import AuthSchema, JWTPairSchema, Error, Success, CreateUserInputSchema, UserOutputSchema, ChangePasswordUserInputSchema
+from .schema import AuthSchema, JWTPairSchema, Error, Success, ChangePasswordUserInputSchema
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password

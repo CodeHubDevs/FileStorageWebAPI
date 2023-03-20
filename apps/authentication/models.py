@@ -33,6 +33,11 @@ class UserManager(BaseUserManager):
 
 AUTH_PROVIDERS = { 'email': 'email'}
 
+ROLES = (
+    ("USER", "User"),
+    ("ADMIN", "Admin"),
+)
+
 # Create your models here.
 class UserModel(AbstractBaseUser, PermissionsMixin, BaseModel):
 
@@ -40,8 +45,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin, BaseModel):
     email = models.EmailField(max_length=100, unique=True, db_index=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    address = models.CharField(max_length=100)
-    contact = models.CharField(max_length=20)
+    role = models.CharField(max_length=50, choices=ROLES, default="USER")
     auth_provider = models.CharField(
         max_length=255, blank=False,
         null=False, default=AUTH_PROVIDERS.get('email'))

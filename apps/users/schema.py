@@ -8,6 +8,7 @@ from apps.authentication.models import UserModel
 class CreateUserInputSchema(Schema):
     email: Optional[str] = None
     password: Optional[str] = None
+    role: Optional[str] = None
 
     @model_validator('email')
     def validate_unique_username(cls, value_data: str) -> str:
@@ -19,6 +20,7 @@ class UserOutputSchema(Schema):
     public_id: Optional[UUID] = None
     email: Optional[str] = None
     password: Optional[str] = None
+    role: Optional[str] = None
 
 class Error(Schema):
     message: str
