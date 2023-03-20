@@ -26,7 +26,7 @@ class UsersMethodView:
         except:
             return 500, {"message": "error on creating user!"}
         
-    @router.get("/users", response=List[UserOutputSchema])
+    @router.get("/", response=List[UserOutputSchema])
     def get_user_list(request):
         """
         It returns a list of all users in the database
