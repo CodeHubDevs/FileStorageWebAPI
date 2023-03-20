@@ -13,7 +13,7 @@ router = Router()
 
 # It's a subclass of the `HttpBearer` class that comes with the `flask-jwt-extended` library
 class AuthenticationMethodView:
-    @router.post('/login', response={200: JWTPairSchema, 401: Error}, auth=None)
+    @router.post('authentication/login', response={200: JWTPairSchema, 401: Error}, auth=None)
     def login(request, auth: AuthSchema):
         """
         It takes a request and an AuthSchema object, authenticates the user, and returns a refresh token
@@ -34,7 +34,7 @@ class AuthenticationMethodView:
                 'access': str(refresh.access_token),
             }
 
-    @router.put('/change-password/{public_id}', response={200: Success, 500: Error})
+    @router.put('authentication/change-password/{public_id}', response={200: Success, 500: Error})
     def change_password(request, public_id: UUID, payload: ChangePasswordUserInputSchema):
         """
         It takes a request, a public_id, and a payload, and then it tries to get the user_data, decode
