@@ -36,4 +36,4 @@ class FolderMehodView:
             folder_data=FolderModel.objects.all()
             return folder_data
         except FolderModel.DoesNotExist as e:
-            return 200, {"message": "no users found!"}
+            return 200, {"message": "no folders found!"}
