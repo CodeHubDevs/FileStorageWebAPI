@@ -1,6 +1,7 @@
 from ninja_extra import NinjaExtraAPI
 from apps.authentication.api import router as authentication_router
 from apps.users.api import router as users_router
+from apps.folders.api import router as folder_router
 from ninja.security import HttpBearer
 
 class GlobalAuth(HttpBearer):
@@ -11,3 +12,4 @@ class GlobalAuth(HttpBearer):
 api = NinjaExtraAPI(auth=GlobalAuth())
 api.add_router('/', authentication_router)
 api.add_router('/users', users_router)
+api.add_router('/folder', folder_router)
