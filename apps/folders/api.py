@@ -8,22 +8,29 @@ router = Router()
 class FolderMehodView:
     @router.post('/create-folder', response=FolderOutputSchema)
     def create_folder(request, payload: FolderInputSchema):
+        """
+        It creates a folder in the database
         
-            folder_data = FolderModel.objects.create(
-                user_id_id=payload.user_id_id,
-                name=payload.name,
-                desc=payload.desc,
-                modified_by=payload.modified_by
-            )
-            return folder_data
+        :param request: The request object
+        :param payload: FolderInputSchema
+        :type payload: FolderInputSchema
+        :return: The return value is a FolderModel object.
+        """
+        folder_data = FolderModel.objects.create(
+            user_id_id=payload.user_id_id,
+            name=payload.name,
+            desc=payload.desc,
+            modified_by=payload.modified_by
+        )
+        return folder_data
         
     @router.get("/get-folder-lists", response=List[FolderOutputSchema])
     def get_folder_lists(request):
         """
-        It returns a list of all users in the database
+        It returns all the data from the FolderModel table.
         
         :param request: The request object
-        :return: A list of users
+        :return: A list of FolderModel objects.
         """
         try:
             folder_data=FolderModel.objects.all()
