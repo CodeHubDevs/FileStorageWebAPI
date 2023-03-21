@@ -15,9 +15,3 @@ class FolderOutputSchema(Schema):
     user_id: Optional[UserOutputSchema] = None
     name: Optional[str] = None
     desc: Optional[str] = None
-
-class Error(Schema):
-    message: str
-
-class Success(Schema):
-    message: str
