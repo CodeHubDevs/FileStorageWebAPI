@@ -20,3 +20,6 @@ class FileOutputSchema(Schema):
     desc: Optional[str] = None
     file: Optional[str]= None
     date_created: Optional[date] = None
+
+class Error(Schema):
+    message: str

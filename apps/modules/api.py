@@ -1,4 +1,5 @@
 from typing import List
+from django.shortcuts import get_object_or_404
 from ninja import Router
 from apps.modules.models import ModuleModel
 from .schema import *
@@ -37,3 +38,52 @@ class ModuleMehodView:
             return folder_data
         except ModuleModel.DoesNotExist as e:
             return 200, {"message": "no modules found!"}
+        
+    @router.get("/{public_id}", response ={200: ModuleOutputSchema, 404: Error})
+    def get_specific_module(request, public_id: UUID):
+        """
+        This function retrieves a specific module based on its public ID and returns either the module
+        or a "Module not found" message.
+        
+        :param request: The HTTP request object that contains information about the incoming request,
+        such as headers, query parameters, and request body
+        :param public_id: public_id is a parameter of type UUID (Universally Unique Identifier) used to
+        identify a specific module in the system. It is a unique identifier assigned to each module and
+        is used to retrieve the module from the database
+        :type public_id: UUID
+        :return: A tuple is being returned, containing an HTTP status code and either the requested
+        module object or a dictionary with an error message if the module is not found.
+        """
+        try:
+            module = get_object_or_404(ModuleModel, public_id=public_id)
+            return 200,  module
+        except ModuleModel.DoesNotExist as e:
+            return 404, {"message": "Module not found!"}
+        
+    @router.put("/{public_id}", response={200: ModuleOutputSchema, 404: Error})
+    def update_module(request, public_id: UUID, payload: ModuleInputSchema):
+        """
+        This function updates a module object with the given payload data and returns the updated module
+        object or a "Module not found" message.
+        
+        :param request: The request object contains metadata about the HTTP request that triggered this
+        function, such as headers, query parameters, and the request body
+        :param public_id: public_id is a parameter of type UUID that represents the unique identifier of
+        a ModuleModel object. It is used to retrieve the specific module that needs to be updated
+        :type public_id: UUID
+        :param payload: The `payload` parameter is a `ModuleInputSchema` object, which is likely a
+        Pydantic model representing the data that is being updated for a `ModuleModel` instance. It
+        contains the updated values for the attributes of the `ModuleModel` instance
+        :type payload: ModuleInputSchema
+        :return: A tuple containing the HTTP status code and either the updated ModuleModel object or a
+        dictionary with a "message" key if the ModuleModel does not exist.
+        """
+        try:
+            module = get_object_or_404(ModuleModel, public_id=public_id)
+            for attr, value in payload.dict().items():
+                print(attr)
+                setattr(module, attr, value)
+            module.save()
+            return 200, module
+        except ModuleModel.DoesNotExist as e:
+            return 404, {"message": "Module not found!"}
