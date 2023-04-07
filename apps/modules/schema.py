@@ -18,3 +18,6 @@ class ModuleOutputSchema(Schema):
     name: Optional[str] = None
     desc: Optional[str] = None
     date_created: Optional[date] = None
+
+class Error(Schema):
+    message: str

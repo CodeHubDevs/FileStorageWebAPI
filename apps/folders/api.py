@@ -2,6 +2,7 @@ from typing import List
 from ninja import Router
 from apps.folders.models import FolderModel
 from .schema import *
+from django.shortcuts import get_object_or_404
 
 router = Router()
 
@@ -37,3 +38,50 @@ class FolderMehodView:
             return folder_data
         except FolderModel.DoesNotExist as e:
             return 200, {"message": "no folders found!"}
+        
+    @router.get("/{public_id}", response ={200: FolderOutputSchema, 404: Error})
+    def get_specific_folder(request, public_id: UUID):
+        """
+        This function retrieves a specific folder by its public ID and returns either the folder or a
+        "Folder not found" message.
+        
+        :param request: The request object represents the HTTP request that was made by the client
+        :param public_id: UUID
+        :type public_id: UUID
+        :return: A tuple containing an HTTP status code and either the requested folder object or a
+        dictionary with an error message if the folder does not exist.
+        """
+        try:
+            folder = get_object_or_404(FolderModel, public_id=public_id)
+            return 200,  folder
+        except FolderModel.DoesNotExist as e:
+            return 404, {"message": "Folder not found!"}
+        
+    @router.put("/{public_id}", response={200: FolderOutputSchema, 404: Error})
+    def update_folder(request, public_id: UUID, payload: FolderInputSchema):
+        """
+        This function updates a folder object with the given payload data and returns the updated folder
+        or a 404 error message if the folder is not found.
+        
+        :param request: The request object contains metadata about the current HTTP request, such as
+        headers, query parameters, and the request body
+        :param public_id: UUID - This is a unique identifier for the folder that is being updated. It is
+        used to retrieve the folder from the database
+        :type public_id: UUID
+        :param payload: The `payload` parameter is an instance of the `FolderInputSchema` class, which
+        is expected to be a dictionary-like object containing the updated attributes and values for a
+        `FolderModel` instance. The `dict()` method is called on the `payload` object to convert it to a
+        standard Python
+        :type payload: FolderInputSchema
+        :return: A tuple containing an HTTP status code and either the updated folder object or a
+        dictionary with an error message.
+        """
+        try:
+            folder = get_object_or_404(FolderModel, public_id=public_id)
+            for attr, value in payload.dict().items():
+                print(attr)
+                setattr(folder, attr, value)
+            folder.save()
+            return 200, folder
+        except FolderModel.DoesNotExist as e:
+            return 404, {"message": "Folder not found!"}
