@@ -27,10 +27,16 @@ class AuthenticationMethodView:
         if user is None:
             return 401, {"message": "invalid username or password!"}
         else:
-            refresh = RefreshToken.for_user(user)
+            access = RefreshToken.for_user(user)
+            print(user.public_id)
             return {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                'access': str(access.access_token),
+                'user': {
+                    'id': user.id,
+                    'public_id': str(user.public_id),
+                    'email': str(user),
+                    'role': str(user.role)
+                }
             }
 
     @router.put('authentication/change-password/{public_id}', response={200: Success, 500: Error})
