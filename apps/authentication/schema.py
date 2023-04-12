@@ -1,6 +1,13 @@
 from ninja import Schema
 from typing import Optional
 from ninja import Schema
+from uuid import UUID
+
+class UserOutputSchema(Schema):
+    id : Optional[int] = None
+    public_id: Optional[UUID] = None
+    email: Optional[str] = None
+    role: Optional[str] = None
 
 class ChangePasswordUserInputSchema(Schema):
     old_password: Optional[str] = None
@@ -12,8 +19,8 @@ class AuthSchema(Schema):
     password: str
 
 class JWTPairSchema(Schema):
-    refresh: str
     access: str
+    user: Optional[UserOutputSchema] = None
 
 class Error(Schema):
     message: str
