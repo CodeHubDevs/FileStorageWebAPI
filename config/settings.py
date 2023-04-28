@@ -96,13 +96,24 @@ AUTH_USER_MODEL = 'authentication.UserModel'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'zYK7R5xtGITzuCqxRIM6',
+        'HOST': 'containers-us-west-123.railway.app',
+        'PORT': '6353'                 # set to empty string for default
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
