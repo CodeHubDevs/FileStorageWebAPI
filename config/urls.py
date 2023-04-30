@@ -15,10 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from apps.base.api import api
+from apps.files import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', api.urls),
-]
+    path('files/<str:filename>', views.file_view, name='file_view')
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
