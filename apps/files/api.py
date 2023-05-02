@@ -106,3 +106,12 @@ class FileMehodView:
             return 200, file
         except FileModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
+        
+    @router.delete("/{public_id}")
+    def update_file(request, public_id: UUID):
+        try:
+            file = get_object_or_404(FileModel, public_id=public_id)
+            file.delete()
+            return {"success": True}
+        except FileModel.DoesNotExist as e:
+            return 404, {"message": "File not found!"}

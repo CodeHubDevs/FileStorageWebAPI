@@ -3,6 +3,8 @@ from ninja import Router
 from apps.authentication.models import UserModel
 from .schema import CreateUserInputSchema, UserOutputSchema, Success, Error
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import get_object_or_404
+from uuid import UUID
 
 router = Router()
 
@@ -40,3 +42,12 @@ class UsersMethodView:
             return users
         except UserModel.DoesNotExist as e:
             return 200, {"message": "no users found!"}
+        
+    @router.delete("/{public_id}")
+    def delete_user(request, public_id: UUID):
+        try:
+            user = get_object_or_404(UserModel, public_id=public_id)
+            user.delete()
+            return {"success": True}
+        except UserModel.DoesNotExist as e:
+            return 404, {"message": "User not found!"}
