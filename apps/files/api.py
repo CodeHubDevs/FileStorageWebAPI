@@ -8,7 +8,7 @@ from ninja.files import UploadedFile
 
 router = Router()
 
-class FileMehodView:
+class FileMethodView:
     @router.post('/insert-file', response=FileOutputSchema)
     def insert_file(request, payload: FileInputSchema, file: UploadedFile = File(...)):
         """

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 router = Router()
 
-class FolderMehodView:
+class FolderMethodView:
     @router.post('/create-folder', response=FolderOutputSchema)
     def create_folder(request, payload: FolderInputSchema):
         """
