@@ -2,6 +2,7 @@ from typing import List
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from apps.modules.models import ModuleModel
+from apps.folders.models import FolderModel
 from .schema import *
 
 router = Router()
@@ -82,11 +83,16 @@ class ModuleMethodView:
             module = get_object_or_404(ModuleModel, public_id=public_id)
             for attr, value in payload.dict().items():
                 print(attr)
-                setattr(module, attr, value)
+                if (attr == 'folder_id'):
+                    folder = get_object_or_404(FolderModel, id=value)
+                    setattr(module, attr, folder)
+                else:
+                    setattr(module, attr, value)
             module.save()
             return 200, module
         except ModuleModel.DoesNotExist as e:
             return 404, {"message": "Module not found!"}
+<<<<<<< HEAD
         
 
     @router.delete("/{public_id}")
@@ -112,3 +118,5 @@ class ModuleMethodView:
             return {"success": True}
         except ModuleModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
+=======
+>>>>>>> b00d7a86d951598352143ecc4d97dc9d15c3d0f4
