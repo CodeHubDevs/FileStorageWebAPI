@@ -92,7 +92,6 @@ class ModuleMethodView:
             return 200, module
         except ModuleModel.DoesNotExist as e:
             return 404, {"message": "Module not found!"}
-<<<<<<< HEAD
         
 
     @router.delete("/{public_id}")
@@ -118,5 +117,3 @@ class ModuleMethodView:
             return {"success": True}
         except ModuleModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
-=======
->>>>>>> b00d7a86d951598352143ecc4d97dc9d15c3d0f4
