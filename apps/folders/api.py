@@ -85,3 +85,24 @@ class FolderMehodView:
             return 200, folder
         except FolderModel.DoesNotExist as e:
             return 404, {"message": "Folder not found!"}
+        
+    @router.delete("/{public_id}")
+    def delete_folder(request, public_id: UUID):
+        """
+        This function deletes a folder with a given public ID and returns a success message or a 404
+        error message if the folder does not exist.
+        
+        :param request: The request object represents the HTTP request that was made by the client
+        :param public_id: UUID
+        :type public_id: UUID
+        :return: If the file with the given public_id exists and is successfully deleted, the function
+        returns a dictionary with a "success" key set to True. If the file does not exist, the function
+        returns a tuple with a 404 status code and a dictionary with a "message" key set to "File not
+        found!".
+        """
+        try:
+            file = get_object_or_404(FolderModel, public_id=public_id)
+            file.delete()
+            return {"success": True}
+        except FolderModel.DoesNotExist as e:
+            return 404, {"message": "File not found!"}

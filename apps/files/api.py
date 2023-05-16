@@ -30,7 +30,7 @@ class FileMehodView:
         """
         file = request.FILES.get('file')
         file_data = FileModel.objects.create(
-            module_id_id=payload.module_id,
+            module_id_id=payload.module_id_id,
             name=payload.name,
             desc=payload.desc,
             file = file,
@@ -78,37 +78,50 @@ class FileMehodView:
         except FileModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
         
-    @router.put("/{public_id}", response={200: FileOutputSchema, 404: Error})
-    def update_file(request, public_id: UUID, payload: FileInputSchema):
-        """
-        This function updates a file object with the given payload data and returns the updated file or
-        a "File not found" message.
+    # @router.put("/{public_id}", response=FileOutputSchema)
+    # def update_file(request, public_id: UUID, payload: FileInputSchema, file: UploadedFile = File(...)):
+    #     """
+    #     This function updates a file object with new data provided in the payload.
         
-        :param request: The request object contains information about the current HTTP request, such as
-        the HTTP method, headers, and body
-        :param public_id: public_id is a unique identifier for a file in the system. It is of type UUID
-        (Universally Unique Identifier) which is a 128-bit value used for identifying information in a
-        system
-        :type public_id: UUID
-        :param payload: The `payload` parameter is a `FileInputSchema` object that contains the updated
-        information for a file. It is used to update the attributes of a `FileModel` object with the
-        given `public_id`
-        :type payload: FileInputSchema
-        :return: A tuple containing an HTTP status code and either the updated FileModel object or a
-        dictionary with a "message" key and value if the FileModel does not exist.
-        """
-        try:
-            file = get_object_or_404(FileModel, public_id=public_id)
-            for attr, value in payload.dict().items():
-                print(attr)
-                setattr(file, attr, value)
-            file.save()
-            return 200, file
-        except FileModel.DoesNotExist as e:
-            return 404, {"message": "File not found!"}
-        
+    #     :param request: The request object represents the HTTP request that triggered the view function
+    #     :param public_id: The public_id parameter is a UUID (Universally Unique Identifier) that
+    #     identifies a specific file in the database
+    #     :type public_id: UUID
+    #     :param payload: The `payload` parameter is a `FileInputSchema` object that contains the updated
+    #     data for the file. It is used to update the attributes of the `FileModel` object with the given
+    #     `public_id`. The `dict()` method is called on the `payload` object to convert it to
+    #     :type payload: FileInputSchema
+    #     :param file: The `file` parameter is an instance of the `UploadedFile` class, which represents a
+    #     file uploaded by a user through a form. It contains information about the file, such as its
+    #     name, content, and content type. This parameter is used to update the contents of the file in
+    #     the database
+    #     :type file: UploadedFile
+    #     :return: an instance of the `FileModel` class after updating its attributes with the values
+    #     provided in the `payload` parameter.
+    #     """
+    #     file = get_object_or_404(FileModel, public_id=public_id)
+    #     for attr, value in payload.dict().items():
+    #         print(attr)
+    #         setattr(file, attr, value)
+    #     file.save()
+    #     return file
+    
     @router.delete("/{public_id}")
-    def update_file(request, public_id: UUID):
+    def delete_file(request, public_id: UUID):
+        """
+        This function deletes a file with a given public ID and returns a success message or a 404 error
+        message if the file is not found.
+        
+        :param request: The request object represents the HTTP request that was made by the client
+        :param public_id: UUID (Universally Unique Identifier) is a 128-bit number used to identify
+        information in computer systems. In this case, the public_id is a UUID that is used to identify
+        a specific file in the system
+        :type public_id: UUID
+        :return: If the file with the given public_id exists and is successfully deleted, the function
+        returns a dictionary with a "success" key set to True. If the file does not exist, the function
+        returns a tuple with a 404 status code and a dictionary with a "message" key set to "File not
+        found!".
+        """
         try:
             file = get_object_or_404(FileModel, public_id=public_id)
             file.delete()

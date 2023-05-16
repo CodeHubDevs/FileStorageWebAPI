@@ -6,7 +6,7 @@ from apps.folders.schema import FolderOutputSchema
 from datetime import date, datetime, time, timedelta
 
 class ModuleInputSchema(Schema):
-    folder_id: Optional[int] = None
+    folder_id_id: Optional[int] = None
     name: Optional[str] = None
     desc: Optional[str] = None
     modified_by: Optional[str] = None

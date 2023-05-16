@@ -6,7 +6,7 @@ from .schema import *
 
 router = Router()
 
-class ModuleMehodView:
+class ModuleMethodView:
     @router.post('/create-module', response=ModuleOutputSchema)
     def create_module(request, payload: ModuleInputSchema):
         """
@@ -18,7 +18,7 @@ class ModuleMehodView:
         :return: The module_data is being returned.
         """
         module_data = ModuleModel.objects.create(
-            folder_id_id=payload.folder_id,
+            folder_id_id=payload.folder_id_id,
             name=payload.name,
             desc=payload.desc,
             modified_by=payload.modified_by
@@ -87,3 +87,28 @@ class ModuleMehodView:
             return 200, module
         except ModuleModel.DoesNotExist as e:
             return 404, {"message": "Module not found!"}
+        
+
+    @router.delete("/{public_id}")
+    def delete_modules(request, public_id: UUID):
+        """
+        This function deletes a module file with a given public ID and returns a success message or a
+        404 error message if the file is not found.
+        
+        :param request: The request object represents the HTTP request that was made by the client to
+        the server
+        :param public_id: UUID (Universally Unique Identifier) is a 128-bit number used to identify
+        information in computer systems. In this case, public_id is a UUID that is used to identify a
+        specific module in the ModuleModel database
+        :type public_id: UUID
+        :return: If the file with the given public_id exists and is successfully deleted, the function
+        returns a dictionary with a "success" key set to True. If the file does not exist, the function
+        returns a tuple with a 404 status code and a dictionary with a "message" key set to "File not
+        found!".
+        """
+        try:
+            file = get_object_or_404(ModuleModel, public_id=public_id)
+            file.delete()
+            return {"success": True}
+        except ModuleModel.DoesNotExist as e:
+            return 404, {"message": "File not found!"}

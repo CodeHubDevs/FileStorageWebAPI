@@ -52,7 +52,8 @@ CREATED_APPS = [
     'apps.users',
     'apps.folders',
     'apps.modules',
-    'apps.files'
+    'apps.files',
+    'apps.quizzes'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + CREATED_APPS

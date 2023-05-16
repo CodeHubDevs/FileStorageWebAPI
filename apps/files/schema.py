@@ -6,7 +6,7 @@ from apps.modules.schema import ModuleOutputSchema
 from datetime import date, datetime, time, timedelta
 
 class FileInputSchema(Schema):
-    module_id: Optional[int] = None
+    module_id_id: Optional[int] = None
     name: Optional[str] = None
     file: Optional[str]= None
     desc: Optional[str] = None

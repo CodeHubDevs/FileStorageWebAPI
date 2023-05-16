@@ -4,6 +4,7 @@ from apps.users.api import router as users_router
 from apps.folders.api import router as folder_router
 from apps.modules.api import router as module_router
 from apps.files.api import router as file_router
+from apps.quizzes.api import router as quizzes_router
 from ninja.security import HttpBearer
 
 class GlobalAuth(HttpBearer):
@@ -17,3 +18,4 @@ api.add_router('/users', users_router)
 api.add_router('/folder', folder_router)
 api.add_router('/modules', module_router)
 api.add_router('/files', file_router)
+api.add_router('/questions', quizzes_router)
