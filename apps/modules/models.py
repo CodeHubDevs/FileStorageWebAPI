@@ -11,3 +11,4 @@ class ModuleModel(BaseModel):
     folder_id = models.ForeignKey(FolderModel, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=50)
     desc = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, default="MODULE")

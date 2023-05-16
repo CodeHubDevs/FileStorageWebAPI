@@ -17,6 +17,7 @@ class ModuleOutputSchema(Schema):
     folder_id: Optional[FolderOutputSchema] = None
     name: Optional[str] = None
     desc: Optional[str] = None
+    type: Optional[str] = None
     date_created: Optional[date] = None
 
 class Error(Schema):

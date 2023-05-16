@@ -17,6 +17,7 @@ class QuizzesOutputSchema(Schema):
     folder_id: Optional[FolderOutputSchema] = None
     question: Optional[str] = None
     desc: Optional[str] = None
+    type: Optional[str] = None
     date_created: Optional[date] = None
 
 class ChoicesInputSchema(Schema):
@@ -31,6 +32,7 @@ class ChoicesOutputSchema(Schema):
     question_id: Optional[QuizzesOutputSchema] = None
     answer: Optional[str] = None
     desc: Optional[str] = None
+    type: Optional[str] = None
     date_created: Optional[date] = None
 
 class Error(Schema):
