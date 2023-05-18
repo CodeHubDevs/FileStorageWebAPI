@@ -20,5 +20,5 @@ class QuestionsModel(BaseModel):
 class QuizModel(BaseModel):
     public_id = models.UUIDField(default = uuid.uuid4,editable = False)
     folder_id = models.ForeignKey(FolderModel, on_delete=models.CASCADE, null=False)
-    questions = models.ManyToManyField(QuestionsModel)
+    questions = models.JSONField(default=list)
     type = models.CharField(max_length=50, default="QUIZ")
