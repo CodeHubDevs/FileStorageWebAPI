@@ -1,12 +1,17 @@
 import json
 from ninja import Router
 from apps.authentication.models import UserModel
-from .schema import AuthSchema, JWTPairSchema, Error, Success, ChangePasswordUserInputSchema
+from .schema import AuthSchema, JWTPairSchema, Error, Success, ChangePasswordUserInputSchema, ForgotPasswordSchema
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from uuid import UUID
+import random
+import string
+from django.core.mail import send_mail
+from django.conf import settings
+from smtplib import SMTPException
 
 router = Router()
 
@@ -68,3 +73,37 @@ class AuthenticationMethodView:
                 return 200, {"message": "password successfully changed."}
         except:
             return 500, {"message": "error on changing password!"}
+        
+
+    @router.post('authentication/forgot-password', response={200: Success, 401: Error}, auth=None)
+    def forgot_password(request, payload: ForgotPasswordSchema):
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        username = body['username']
+        letters = string.ascii_lowercase
+        new_password = ''.join(random.choice(letters) for i in range(6))
+        email_sent = False
+        if UserModel.objects.filter(email=username).exists():
+            user = UserModel.objects.get(email=username)
+            subject = "Request for Forgot Password"
+            message = "Hi user, here is your new password, {}".format(new_password.upper())
+            email = settings.EMAIL_HOST_USER
+            recipient = [user.email]
+            try:
+                send_mail(subject=subject, message=message, from_email=email, recipient_list=recipient)
+                print("successfully email send")
+                email_sent = True
+            except SMTPException as err:
+                print("error on sending email" + err)
+                email_sent = False
+
+            if email_sent == True:
+                UserModel.objects.filter(email=username).update(email=username, password = make_password(new_password.upper()))
+
+                return 200, {"message": "password successfully reset."}
+            else:
+                return 500, {"message": "error on forgot password!"}
+
+            ## to decrypt ##
+            #decMessage = fernet.decrypt(encrypt_token).decode()
+            

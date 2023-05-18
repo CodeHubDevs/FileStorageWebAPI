@@ -22,6 +22,9 @@ class JWTPairSchema(Schema):
     access: str
     user: Optional[UserOutputSchema] = None
 
+class ForgotPasswordSchema(Schema):
+    username: str
+
 class Error(Schema):
     message: str
 
