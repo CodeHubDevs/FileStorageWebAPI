@@ -4,40 +4,46 @@ from typing import Optional
 from ninja import Schema
 from apps.folders.schema import FolderOutputSchema
 from datetime import date, datetime, time, timedelta
+from typing import List
 
-class QuizzesInputSchema(Schema):
-    folder_id_id: Optional[int] = None
-    question: Optional[str] = None
-    desc: Optional[str] = None
+class ChoiceInputSchema(Schema):
+    choice: Optional[str] = None
     modified_by: Optional[str] = None
 
-class QuizzesOutputSchema(Schema):
+class ChoiceOutputSchema(Schema):
     id : Optional[int] = None
     public_id: Optional[UUID] = None
-    folder_id: Optional[FolderOutputSchema] = None
-    question: Optional[str] = None
-    desc: Optional[str] = None
+    choice: Optional[str] = None
     type: Optional[str] = None
     date_created: Optional[date] = None
 
-class ChoicesInputSchema(Schema):
-    question_id_id: Optional[int] = None
-    answer_1: Optional[str] = None
-    answer_2: Optional[str] = None
-    answer_3: Optional[str] = None
-    answer_4: Optional[str] = None
-    desc: Optional[str] = None
+########################################
+
+class QuestionInputSchema(Schema):
+    question: Optional[str] = None
+    choices: Optional[List[int]] = None
     modified_by: Optional[str] = None
 
-class ChoicesOutputSchema(Schema):
+class QuestionOutputSchema(Schema):
     id : Optional[int] = None
     public_id: Optional[UUID] = None
-    question_id: Optional[QuizzesOutputSchema] = None
-    answer_1: Optional[str] = None
-    answer_2: Optional[str] = None
-    answer_3: Optional[str] = None
-    answer_4: Optional[str] = None
-    desc: Optional[str] = None
+    question: Optional[str] = None
+    choices: Optional[List[ChoiceOutputSchema]] = None
+    type: Optional[str] = None
+    date_created: Optional[date] = None
+
+########################################
+
+class QuizInputSchema(Schema):
+    folder_id_id: Optional[int]= None
+    questions: Optional[List[int]] = None
+    modified_by: Optional[str] = None
+
+class QuizOutputSchema(Schema):
+    id : Optional[int] = None
+    public_id: Optional[UUID] = None
+    folder_id: Optional[FolderOutputSchema] = None
+    questions: Optional[List[QuestionOutputSchema]] = None
     type: Optional[str] = None
     date_created: Optional[date] = None
 

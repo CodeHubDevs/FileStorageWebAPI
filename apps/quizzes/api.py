@@ -1,244 +1,284 @@
 from typing import List
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from apps.quizzes.models import QuizQuestionsModel, QuizChoicesModel
 from .schema import *
+from .models import *
+import json
 
 router = Router()
 
 class QuizzesMethodView:
-    @router.post('/create-questions', response=QuizzesOutputSchema)
-    def create_questions(request, payload: QuizzesInputSchema):
+    @router.post('/create-choice', response=ChoiceOutputSchema)
+    def create_choice(request, payload: ChoiceInputSchema):
         """
-        This function creates a new quiz question in the database using the provided payload data.
+        This function creates a new choice object in the database using the input data.
         
-        :param request: The request object is an instance of the HttpRequest class, which represents an
-        incoming HTTP request from a client. It contains information about the request, such as the HTTP
-        method, headers, and body
-        :param payload: QuizzesInputSchema, which is likely a schema or data structure that defines the
-        expected format and data types for the input payload of a quiz question. It likely includes
-        fields such as "question" (the actual question being asked), "desc" (a description or additional
-        information about the question), and
-        :type payload: QuizzesInputSchema
-        :return: The function `create_questions` returns an instance of the `QuizQuestionsModel` class
-        with the attributes `question`, `desc`, and `modified_by` set to the values provided in the
-        `payload` parameter.
+        :param request: The request object represents the HTTP request that triggered the view function.
+        It contains information about the client's request, such as the HTTP method used, the headers,
+        and the request body
+        :param payload: The parameter `payload` is of type `ChoiceInputSchema`, which is likely a custom
+        schema or data class that defines the structure of the data being passed in for creating a new
+        choice. It likely contains information such as the text of the choice and the user who is
+        modifying it
+        :type payload: ChoiceInputSchema
+        :return: The function `create_choice` is returning an instance of the `ChoiceModel` class that
+        was created with the data provided in the `payload` parameter.
         """
-        question_data = QuizQuestionsModel.objects.create(
-            folder_id_id = payload.folder_id_id,
-            question=payload.question,
-            desc=payload.desc,
+        choice_data = ChoiceModel.objects.create(
+            choice=payload.choice,
             modified_by=payload.modified_by
         )
-        return question_data
+        return choice_data
     
-    @router.get("/get-question-lists", response=List[QuizzesOutputSchema])
-    def get_question_lists(request):
+    @router.get("/get-choices-lists", response=List[ChoiceOutputSchema])
+    def get_choices_lists(request):
         """
-        This function retrieves all quiz questions data or returns a message if no questions are found.
+        The function retrieves all the choices from the ChoiceModel database table and returns them, or
+        returns a message if no choices are found.
         
-        :param request: The request parameter is not being used in the given code snippet. It is likely
-        that this function is a part of a Django view and the request parameter is being passed
-        automatically by the framework
-        :return: If the try block is successful, the function will return all the data from the
-        QuizQuestionsModel. If the try block raises a DoesNotExist exception, the function will return a
-        tuple containing the HTTP status code 200 and a dictionary with a message indicating that no
-        questions were found.
+        :param request: The `request` parameter is not used in the given code snippet. It is likely that
+        this function is not part of a view and does not require a request object
+        :return: If the `ChoiceModel` objects exist, then the function will return the queryset of all
+        `ChoiceModel` objects. If the `ChoiceModel` does not exist, then the function will return a
+        tuple containing an HTTP status code of 200 and a dictionary with a message indicating that no
+        choices were found.
         """
         try:
-            quizzes_data=QuizQuestionsModel.objects.all()
-            return quizzes_data
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 200, {"message": "no questions found!"}
-    
-    @router.post('/create-answer', response=ChoicesOutputSchema)
-    def create_answer(request, payload: ChoicesInputSchema):
-        """
-        The function creates a new answer for a quiz question using the input payload data.
+            choices_data=ChoiceModel.objects.all()
+            return choices_data
+        except ChoiceModel.DoesNotExist as e:
+            return 200, {"message": "no choices found!"}
         
-        :param request: The request object contains information about the current HTTP request, such as
-        the user making the request, the HTTP method used, and any data sent in the request
-        :param payload: The parameter `payload` is of type `ChoicesInputSchema`, which is likely a
-        custom schema or data class that defines the structure of the data being passed in. It likely
-        contains information about a user's answer to a quiz question, including the question ID, the
-        user's answer choice, a description
-        :type payload: ChoicesInputSchema
-        :return: The function `create_answer` returns an instance of the `QuizChoicesModel` class with
-        the data provided in the `payload` parameter.
+    @router.get("get-specific-choice/{public_id}", response ={200: ChoiceOutputSchema, 404: Error})
+    def get_specific_choice(request, public_id: UUID):
         """
-        answer_data = QuizChoicesModel.objects.create(
-            question_id_id = payload.question_id_id,
-            answer_1=payload.answer_1,
-            answer_2=payload.answer_2,
-            answer_3=payload.answer_3,
-            answer_4=payload.answer_4,
-            desc=payload.desc,
-            modified_by=payload.modified_by
-        )
-        return answer_data
-    
-    @router.get("/get-answer-lists/{question_id}", response=List[ChoicesOutputSchema])
-    def get_answer_lists_by_question_id(request, question_id: int):
-        """
-        This function retrieves answer lists by a given question ID from a database table.
-        
-        :param request: The HTTP request object that contains information about the current request,
-        such as the user making the request, the HTTP method used, and any data sent with the request
-        :param question_id: an integer representing the ID of the question for which we want to retrieve
-        the answer choices
-        :type question_id: int
-        :return: This function returns a queryset of answer choices related to a specific question ID.
-        If no answer choices are found for the given question ID, it returns a response with a status
-        code of 200 and a message indicating that no questions were found.
-        """
-        try:
-            answer_data=QuizChoicesModel.objects.all().filter(question_id=question_id)
-            return answer_data
-        except QuizChoicesModel.DoesNotExist as e:
-            return 200, {"message": "no questions found!"}
-        
-    @router.put("answer/{public_id}", response={200: ChoicesOutputSchema, 404: Error})
-    def update_specific_answer(request, public_id: UUID, payload: ChoicesInputSchema):
-        """
-        This function updates a specific answer in a quiz using the provided payload.
-        
-        :param request: The HTTP request object containing metadata about the request being made
-        :param public_id: The public_id parameter is a UUID (Universally Unique Identifier) that is used
-        to identify a specific QuizChoicesModel object in the database
-        :type public_id: UUID
-        :param payload: The `payload` parameter is an instance of the `ChoicesInputSchema` class, which
-        is expected to be a dictionary-like object containing the updated values for the
-        `QuizChoicesModel` instance identified by the `public_id` parameter. The `dict()` method is
-        called on the `payload` object
-        :type payload: ChoicesInputSchema
-        :return: A tuple containing an HTTP status code and either the updated QuizChoicesModel object
-        or a dictionary with an error message.
-        """
-        try:
-            answer = get_object_or_404(QuizChoicesModel, public_id=public_id)
-            for attr, value in payload.dict().items():
-                print(attr)
-                setattr(answer, attr, value)
-            answer.save()
-            return 200, answer
-        except QuizChoicesModel.DoesNotExist as e:
-            return 404, {"message": "Answer not found!"}
-        
-    @router.delete("/{public_id}")
-    def delete_answer(request, public_id: UUID):
-        """
-        This function deletes a QuizChoicesModel object with a given public_id and returns a success
-        message or a 404 error message if the object does not exist.
-        
-        :param request: The HTTP request object containing metadata about the request, such as headers
-        and user information
-        :param public_id: UUID
-        :type public_id: UUID
-        :return: If the file with the given public_id exists and is successfully deleted, the function
-        returns a dictionary with a "success" key set to True. If the file does not exist, the function
-        returns a tuple with a 404 status code and a dictionary with a "message" key set to "File not
-        found!".
-        """
-
-        try:
-            file = get_object_or_404(QuizChoicesModel, public_id=public_id)
-            file.delete()
-            return {"success": True}
-        except QuizChoicesModel.DoesNotExist as e:
-            return 404, {"message": "File not found!"}
-        
-    @router.get("/get-question-lists/{folder_id}", response=List[QuizzesOutputSchema])
-    def get_question_lists_by_folder_id(request, folder_id: int):
-        """
-        This function retrieves a list of quiz questions based on a given folder ID.
-        
-        :param request: The request object contains information about the current HTTP request, such as
-        the user making the request, the HTTP method used, and any data sent with the request
-        :param folder_id: an integer representing the ID of the folder for which the list of questions
-        is being requested
-        :type folder_id: int
-        :return: If the `QuizQuestionsModel` objects are found for the given `folder_id`, then the
-        `quizzes_data` variable containing the filtered objects is returned. If no objects are found,
-        then a tuple containing the HTTP status code 200 and a dictionary with a "message" key-value
-        pair indicating that no questions were found is returned.
-        """
-        
-        try:
-            quizzes_data=QuizQuestionsModel.objects.all().filter(folder_id=folder_id)
-            return quizzes_data
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 200, {"message": "no questions found!"}
-        
-    @router.get("/{public_id}", response ={200: QuizzesOutputSchema, 404: Error})
-    def get_specific_question(request, public_id: UUID):
-        """
-        This function retrieves a specific quiz question by its public ID and returns either the
-        question or a 404 error message.
+        This function retrieves a specific choice object based on its public ID and returns it with a
+        200 status code, or returns a 404 status code with an error message if the choice does not
+        exist.
         
         :param request: The request object represents the HTTP request that the client has made to the
         server
         :param public_id: public_id is a parameter of type UUID (Universally Unique Identifier) which is
-        used to identify a specific quiz question in the database. It is passed as an argument to the
-        function get_specific_question() which retrieves the question with the matching public_id from
-        the QuizQuestionsModel table. If the question is
+        used to identify a specific ChoiceModel object. It is passed as an argument to the
+        get_specific_choice function
         :type public_id: UUID
-        :return: a tuple with two values: an HTTP status code (either 200 or 404) and either the
-        requested quiz question object or a dictionary with an error message if the question is not
+        :return: A tuple containing an HTTP status code and either the requested ChoiceModel object or a
+        dictionary with an error message if the object does not exist.
+        """
+        try:
+            choice = get_object_or_404(ChoiceModel, public_id=public_id)
+            return 200,  choice
+        except ChoiceModel.DoesNotExist as e:
+            return 404, {"message": "Choice not found!"}
+        
+    @router.put("update-choice/{public_id}", response={200: ChoiceOutputSchema, 404: Error})
+    def update_choice(request, public_id: UUID, payload: ChoiceInputSchema):
+        """
+        This function updates a choice object with the given payload data.
+        
+        :param request: The request object contains information about the current HTTP request, such as
+        the HTTP method, headers, and body
+        :param public_id: The public_id parameter is a UUID (Universally Unique Identifier) that is used
+        to identify a specific ChoiceModel object in the database
+        :type public_id: UUID
+        :param payload: The `payload` parameter is an instance of the `ChoiceInputSchema` class, which
+        is a Pydantic model used for validating and parsing incoming JSON data in the request body. It
+        contains the updated values for the `ChoiceModel` instance identified by the `public_id`
+        parameter
+        :type payload: ChoiceInputSchema
+        :return: A tuple containing an HTTP status code and either the updated ChoiceModel object or a
+        dictionary with an error message.
+        """
+        try:
+            choice = get_object_or_404(ChoiceModel, public_id=public_id)
+            for attr, value in payload.dict().items():
+                print(attr)
+                setattr(choice, attr, value)
+            choice.save()
+            return 200, choice
+        except ChoiceModel.DoesNotExist as e:
+            return 404, {"message": "Choice not found!"}
+        
+######################################################################
+
+    @router.post('/create-question', response=QuestionOutputSchema)
+    def create_question(request, payload: QuestionInputSchema):
+        """
+        This function creates a new question object with choices and returns it.
+        
+        :param request: The HTTP request object containing information about the incoming request
+        :param payload: The payload parameter is of type QuestionInputSchema, which is likely a custom
+        schema or class that defines the structure of the data expected for creating a new question. It
+        likely includes fields such as the question text and the user who modified the question
+        :type payload: QuestionInputSchema
+        :return: The function `create_question` is returning an instance of the `QuestionsModel` class
+        that has been created with the provided `question` and `modified_by` data, and with the
+        `choices` data added to it.
+        """
+        body_unicode=request.body.decode('utf-8')
+        json_data = json.loads(body_unicode)
+        choices_data = json_data['choices']
+        question_data = QuestionsModel.objects.create(
+            question=payload.question,
+            modified_by=payload.modified_by
+        )
+        for indx in range(len(choices_data)):
+            print(indx)
+            question_data.choices.add(choices_data[indx])
+        return question_data
+    
+    @router.get("/get-question-lists", response=List[QuestionOutputSchema])
+    def get_question_lists(request):
+        """
+        This function retrieves all question data from the ChoiceModel database table or returns a
+        message if no questions are found.
+        
+        :param request: The request parameter is not used in the given code snippet. It is likely that
+        this function is a part of a Django view and the request parameter is included by default in all
+        view functions
+        :return: If there are questions in the database, the function will return a QuerySet containing
+        all the questions. If there are no questions in the database, the function will return a tuple
+        containing a status code of 200 and a dictionary with a message indicating that no questions
+        were found.
+        """
+        try:
+            question_data=QuestionsModel.objects.all()
+            return question_data
+        except QuestionsModel.DoesNotExist as e:
+            return 200, {"message": "no question found!"}
+        
+    @router.get("get-specific-question/{public_id}", response ={200: QuestionOutputSchema, 404: Error})
+    def get_specific_question(request, public_id: UUID):
+        """
+        This function retrieves a specific question by its public ID and returns either the question or
+        a "Question not found" message.
+        
+        :param request: The HTTP request object containing metadata about the request, such as headers
+        and query parameters
+        :param public_id: public_id is a parameter of type UUID (Universally Unique Identifier) that is
+        used to identify a specific question in the QuestionsModel database. It is passed as an argument
+        to the get_specific_question function
+        :type public_id: UUID
+        :return: A tuple is being returned, with the first element being an HTTP status code (either 200
+        or 404) and the second element being either the requested question object or a dictionary with
+        an error message.
+        """
+        try:
+            question = get_object_or_404(QuestionsModel, public_id=public_id)
+            return 200,  question
+        except QuestionsModel.DoesNotExist as e:
+            return 404, {"message": "Question not found!"}
+    
+    @router.delete("delete-question/{public_id}")
+    def delete_question(request, public_id: UUID):
+        """
+        This function deletes a question with a given public ID and returns a success message or a 404
+        error message if the question is not found.
+        
+        :param request: The request object represents the HTTP request that was made by the client
+        :param public_id: UUID
+        :type public_id: UUID
+        :return: If the question with the given public_id exists, it will be deleted and a dictionary
+        with the key "success" and value True will be returned. If the question does not exist, a tuple
+        with the HTTP status code 404 and a dictionary with the key "message" and value "Question not
+        found!" will be returned.
+        """
+        try:
+            question = get_object_or_404(QuestionsModel, public_id=public_id)
+            question.delete()
+            return {"success": True}
+        except QuestionsModel.DoesNotExist as e:
+            return 404, {"message": "Question not found!"}
+        
+######################################################################
+
+    @router.post('/create-quiz', response=QuizOutputSchema)
+    def create_quiz(request, payload: QuizInputSchema):
+        """
+        This function creates a quiz object with a given folder ID and modified by user, and adds a list
+        of questions to the quiz.
+        
+        :param request: The HTTP request object containing information about the incoming request
+        :param payload: The payload parameter is of type QuizInputSchema, which is likely a custom
+        schema or class that defines the expected structure of the input data for creating a quiz. It
+        likely contains information such as the folder ID where the quiz should be stored and the user
+        who is modifying the quiz
+        :type payload: QuizInputSchema
+        :return: an instance of the QuizModel class that has been created and populated with the
+        provided payload data and questions.
+        """
+        body_unicode=request.body.decode('utf-8')
+        json_data = json.loads(body_unicode)
+        questions = json_data['questions']
+        quiz = QuizModel.objects.create(
+            folder_id_id=payload.folder_id_id,
+            modified_by=payload.modified_by
+        )
+        for indx in range(len(questions)):
+            print(indx)
+            quiz.questions.add(questions[indx])
+        return quiz
+    
+    @router.get("/get-quiz-lists", response=List[QuizOutputSchema])
+    def get_quiz_lists(request):
+        """
+        This function retrieves all quiz data from the QuizModel database table and returns it, or
+        returns a message if no quiz data is found.
+        
+        :param request: The request parameter is not being used in the given code snippet. It is a
+        common parameter in Django views and is used to represent an HTTP request that is sent to the
+        server. It contains information such as the request method, headers, and data
+        :return: If the try block is successful, the function will return all the quiz data from the
+        QuizModel. If the QuizModel.DoesNotExist exception is raised, the function will return a tuple
+        containing the HTTP status code 200 and a dictionary with a message indicating that no quiz was
         found.
         """
         try:
-            question = get_object_or_404(QuizQuestionsModel, public_id=public_id)
-            return 200,  question
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 404, {"message": "Question not found!"}
+            quiz_data=QuizModel.objects.all()
+            return quiz_data
+        except QuizModel.DoesNotExist as e:
+            return 200, {"message": "no quiz found!"}
         
-    @router.put("/{public_id}", response={200: QuizzesOutputSchema, 404: Error})
-    def update_question(request, public_id: UUID, payload: QuizzesInputSchema):
+    @router.get("get-specific-quiz/{public_id}", response ={200: QuizOutputSchema, 404: Error})
+    def get_specific_quiz(request, public_id: UUID):
         """
-        This function updates a quiz question object with the given payload data.
+        This function retrieves a specific quiz by its public ID and returns either the quiz or a 404
+        error message.
         
-        :param request: The HTTP request object containing information about the request being made
-        :param public_id: UUID - This is a unique identifier for the quiz question that is being
-        updated. It is used to retrieve the specific question from the database
+        :param request: The HTTP request object that contains information about the incoming request,
+        such as the HTTP method, headers, and body
+        :param public_id: public_id is a parameter of type UUID (Universally Unique Identifier) that is
+        used to identify a specific quiz in the database. It is passed as an argument to the function
+        get_specific_quiz() in a Django view. The function tries to retrieve the quiz with the given
+        public_id from the QuizModel
         :type public_id: UUID
-        :param payload: The payload parameter is an instance of the QuizzesInputSchema class, which is
-        expected to be a dictionary-like object containing the updated values for the QuizQuestionsModel
-        instance identified by the public_id parameter
-        :type payload: QuizzesInputSchema
-        :return: a tuple containing an HTTP status code and either the updated QuizQuestionsModel object
-        or a dictionary with an error message if the object is not found.
+        :return: A tuple containing an HTTP status code and either the requested quiz object or a
+        dictionary with an error message.
         """
         try:
-            question = get_object_or_404(QuizQuestionsModel, public_id=public_id)
-            for attr, value in payload.dict().items():
-                print(attr)
-                setattr(question, attr, value)
-            question.save()
-            return 200, question
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 404, {"message": "Question not found!"}
+            quiz = get_object_or_404(QuizModel, public_id=public_id)
+            return 200,  quiz
+        except QuizModel.DoesNotExist as e:
+            return 404, {"message": "Quiz not found!"}
         
-    @router.delete("/{public_id}")
-    def delete_question(request, public_id: UUID):
+    @router.delete("delete-quiz/{public_id}")
+    def delete_quiz(request, public_id: UUID):
         """
-        This function deletes a file with a given public ID and returns a success message or a 404 error
-        message if the file is not found.
+        This function deletes a quiz with a given public ID and returns a success message or a 404 error
+        message if the quiz is not found.
         
-        :param request: The request object represents the HTTP request that was made by the client to
-        the server
-        :param public_id: public_id is a parameter of type UUID that is used to identify a specific
-        FolderModel object to be deleted. It is passed as an argument to the delete_question function
+        :param request: The HTTP request object that contains information about the current request,
+        such as the HTTP method, headers, and body
+        :param public_id: UUID
         :type public_id: UUID
-        :return: If the file with the given public_id exists and is successfully deleted, the function
-        returns a dictionary with a key "success" and value True. If the file does not exist, the
-        function returns a tuple with a status code of 404 and a dictionary with a key "message" and
-        value "File not found!".
+        :return: If the quiz with the given public_id exists and is successfully deleted, a dictionary
+        with the key "success" and value True is returned. If the quiz does not exist, a tuple with the
+        HTTP status code 404 and a dictionary with the key "message" and value "quiz not found!" is
+        returned.
         """
-        
         try:
-            file = get_object_or_404(QuizQuestionsModel, public_id=public_id)
-            file.delete()
+            quiz = get_object_or_404(QuizModel, public_id=public_id)
+            quiz.delete()
             return {"success": True}
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 404, {"message": "File not found!"}
-        
+        except QuizModel.DoesNotExist as e:
+            return 404, {"message": "quiz not found!"}
