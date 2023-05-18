@@ -32,6 +32,25 @@ class QuizzesMethodView:
         )
         return question_data
     
+    @router.get("/get-question-lists", response=List[QuizzesOutputSchema])
+    def get_question_lists(request):
+        """
+        This function retrieves all quiz questions data or returns a message if no questions are found.
+        
+        :param request: The request parameter is not being used in the given code snippet. It is likely
+        that this function is a part of a Django view and the request parameter is being passed
+        automatically by the framework
+        :return: If the try block is successful, the function will return all the data from the
+        QuizQuestionsModel. If the try block raises a DoesNotExist exception, the function will return a
+        tuple containing the HTTP status code 200 and a dictionary with a message indicating that no
+        questions were found.
+        """
+        try:
+            quizzes_data=QuizQuestionsModel.objects.all()
+            return quizzes_data
+        except QuizQuestionsModel.DoesNotExist as e:
+            return 200, {"message": "no questions found!"}
+    
     @router.post('/create-answer', response=ChoicesOutputSchema)
     def create_answer(request, payload: ChoicesInputSchema):
         """
@@ -49,7 +68,10 @@ class QuizzesMethodView:
         """
         answer_data = QuizChoicesModel.objects.create(
             question_id_id = payload.question_id_id,
-            answer=payload.answer,
+            answer_1=payload.answer_1,
+            answer_2=payload.answer_2,
+            answer_3=payload.answer_3,
+            answer_4=payload.answer_4,
             desc=payload.desc,
             modified_by=payload.modified_by
         )
@@ -124,26 +146,6 @@ class QuizzesMethodView:
             return {"success": True}
         except QuizChoicesModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
-        
-    
-    @router.get("/get-question-lists", response=List[QuizzesOutputSchema])
-    def get_question_lists(request):
-        """
-        This function retrieves all quiz questions data or returns a message if no questions are found.
-        
-        :param request: The request parameter is not being used in the given code snippet. It is likely
-        that this function is a part of a Django view and the request parameter is being passed
-        automatically by the framework
-        :return: If the try block is successful, the function will return all the data from the
-        QuizQuestionsModel. If the try block raises a DoesNotExist exception, the function will return a
-        tuple containing the HTTP status code 200 and a dictionary with a message indicating that no
-        questions were found.
-        """
-        try:
-            quizzes_data=QuizQuestionsModel.objects.all()
-            return quizzes_data
-        except QuizQuestionsModel.DoesNotExist as e:
-            return 200, {"message": "no questions found!"}
         
     @router.get("/get-question-lists/{folder_id}", response=List[QuizzesOutputSchema])
     def get_question_lists_by_folder_id(request, folder_id: int):

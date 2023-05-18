@@ -16,6 +16,9 @@ class QuizQuestionsModel(BaseModel):
 class QuizChoicesModel(BaseModel):
     public_id = models.UUIDField(default = uuid.uuid4,editable = False)
     question_id = models.ForeignKey(QuizQuestionsModel, on_delete=models.CASCADE, null=False)
-    answer = models.CharField(max_length=255)
+    answer_1 = models.CharField(max_length=255, blank=True)
+    answer_2 = models.CharField(max_length=255, blank=True)
+    answer_3 = models.CharField(max_length=255, blank=True)
+    answer_4 = models.CharField(max_length=255, blank=True)
     desc = models.CharField(max_length=50)
     type = models.CharField(max_length=50, default="QUIZ")

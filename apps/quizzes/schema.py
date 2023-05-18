@@ -22,7 +22,10 @@ class QuizzesOutputSchema(Schema):
 
 class ChoicesInputSchema(Schema):
     question_id_id: Optional[int] = None
-    answer: Optional[str] = None
+    answer_1: Optional[str] = None
+    answer_2: Optional[str] = None
+    answer_3: Optional[str] = None
+    answer_4: Optional[str] = None
     desc: Optional[str] = None
     modified_by: Optional[str] = None
 
@@ -30,7 +33,10 @@ class ChoicesOutputSchema(Schema):
     id : Optional[int] = None
     public_id: Optional[UUID] = None
     question_id: Optional[QuizzesOutputSchema] = None
-    answer: Optional[str] = None
+    answer_1: Optional[str] = None
+    answer_2: Optional[str] = None
+    answer_3: Optional[str] = None
+    answer_4: Optional[str] = None
     desc: Optional[str] = None
     type: Optional[str] = None
     date_created: Optional[date] = None
