@@ -20,5 +20,7 @@ class QuestionsModel(BaseModel):
 class QuizModel(BaseModel):
     public_id = models.UUIDField(default = uuid.uuid4,editable = False)
     folder_id = models.ForeignKey(FolderModel, on_delete=models.CASCADE, null=False)
+    name = models.CharField(max_length=100, null=True)
+    desc = models.CharField(max_length=255, null=True)
     questions = models.JSONField(default=list)
     type = models.CharField(max_length=50, default="QUIZ")
