@@ -21,5 +21,18 @@ class FileOutputSchema(Schema):
     file: Optional[str]= None
     date_created: Optional[date] = None
 
+class CommentInputSchema(Schema):
+    comment: Optional[str] = None
+    desc: Optional[str] = None
+    modified_by: Optional[str] = None
+
+class CommentOutputSchema(Schema):
+    id: Optional[int] = None
+    public_id: Optional[UUID] = None
+    file_id: Optional[FileOutputSchema] = None
+    comment: Optional[str] = None
+    desc: Optional[str] = None
+    date_created: Optional[date] = None
+
 class Error(Schema):
     message: str

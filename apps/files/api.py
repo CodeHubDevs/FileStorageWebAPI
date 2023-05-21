@@ -1,7 +1,7 @@
 from typing import List
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from apps.files.models import FileModel
+from apps.files.models import FileModel, CommentModel
 from .schema import *
 from ninja import File
 from ninja.files import UploadedFile
@@ -128,3 +128,102 @@ class FileMethodView:
             return {"success": True}
         except FileModel.DoesNotExist as e:
             return 404, {"message": "File not found!"}
+        
+    @router.post('/insert-comment/{file_id}', response=CommentOutputSchema)
+    def insert_comment_on_file(request, file_id:int,payload: CommentInputSchema):
+        """
+        This function creates a new comment on a file with the given file ID and returns the comment
+        data.
+        
+        :param request: The request object is an HTTP request object that contains information about the
+        incoming request, such as the HTTP method, headers, and body
+        :param file_id: an integer representing the ID of the file on which the comment is being
+        inserted
+        :type file_id: int
+        :param payload: CommentInputSchema is a schema or a data structure that contains the data
+        required to create a new comment on a file. It includes the following fields:
+        :type payload: CommentInputSchema
+        :return: an instance of the `CommentModel` class that was created with the provided `file_id`,
+        `comment`, `desc`, and `modified_by` data.
+        """
+        comment_data = CommentModel.objects.create(
+            file_id_id=file_id,
+            comment=payload.comment,
+            desc=payload.desc,
+            modified_by=payload.modified_by
+        )
+        return comment_data
+    
+    @router.get("get-comment-lists/{file_id}", response ={200: List[CommentOutputSchema], 404: Error})
+    def get_comments_by_file_id(request, file_id: int):
+        """
+        This function retrieves all comments associated with a given file ID and returns them along with
+        a success status code, or returns a "not found" message if no comments are found.
+        
+        :param request: The request object contains information about the current HTTP request, such as
+        the request method, headers, and body
+        :param file_id: The file_id parameter is an integer that is used to filter comments based on the
+        file they are associated with
+        :type file_id: int
+        :return: A tuple containing an HTTP status code and either the comment data or a message
+        indicating that no comments were found.
+        """
+        try:
+            comment_data = CommentModel.objects.all().filter(file_id=file_id)
+            return 200,  comment_data
+        except CommentModel.DoesNotExist as e:
+            return 404, {"message": "No comments found!"}
+        
+    @router.put("/edit-comment/{file_id}/{public_id}", response=CommentOutputSchema)
+    def edit_comment(request, public_id: UUID, file_id: int ,payload: CommentInputSchema):
+        """
+        This function edits a comment in a database based on the provided public ID, file ID, and
+        payload.
+        
+        :param request: The HTTP request object containing metadata about the request being made
+        :param public_id: UUID - a unique identifier for the comment
+        :type public_id: UUID
+        :param file_id: an integer representing the ID of the file associated with the comment being
+        edited
+        :type file_id: int
+        :param payload: The `payload` parameter is a variable that contains data sent in the request
+        body. It is of type `CommentInputSchema`, which is likely a custom schema or class that defines
+        the structure and validation rules for the data being sent. The `payload` variable is used to
+        update the properties of an
+        :type payload: CommentInputSchema
+        :return: If the comment is successfully edited, the updated comment object is returned. If the
+        comment with the given public_id does not exist, a message and a 404 status code are returned.
+        """
+        try:
+            comment = get_object_or_404(CommentModel, public_id=public_id)
+            comment.file_id_id = file_id
+            comment.modified_by = payload.modified_by
+            comment.comment = payload.comment
+            comment.desc=payload.desc
+            comment.save()
+
+            return comment
+        except CommentModel.DoesNotExist:
+            return {"message": "comment not found!"}, 404
+        
+    @router.delete("/delete-comment/{public_id}")
+    def delete_comment(request, public_id: UUID):
+        """
+        This function deletes a comment with a given public ID and returns a success message or a 404
+        error message if the comment does not exist.
+        
+        :param request: The HTTP request object containing information about the current request
+        :param public_id: UUID
+        :type public_id: UUID
+        :return: If the comment with the given public_id exists and is successfully deleted, the
+        function returns a dictionary with a key "success" and value True. If the comment does not
+        exist, the function returns a dictionary with a key "message" and value "Comment not found!",
+        along with a 404 status code.
+        """
+        try:
+            comment = get_object_or_404(CommentModel, public_id=public_id)
+            comment.delete()
+            return {"success": True}
+        except CommentModel.DoesNotExist:
+            return {"message": "Comment not found!"}, 404
+           
