@@ -55,8 +55,8 @@ class QuizzesMethodView:
             quiz = get_object_or_404(QuizModel, public_id=public_id)
             quiz.folder_id_id = payload.folder_id_id
             quiz.modified_by = payload.modified_by
-            quiz.name = payload.name,
-            quiz.desc=payload.desc,
+            quiz.name = payload.name
+            quiz.desc=payload.desc
             quiz.questions = payload.questions  # Update the questions directly
             quiz.save()
 
