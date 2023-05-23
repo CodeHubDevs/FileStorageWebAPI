@@ -32,6 +32,51 @@ class UsersMethodView:
         except:
             return 500, {"message": "error on creating user!"}
         
+    @router.post('/create-admin', response={200: Success, 500: Error}, auth=None)
+    def create_admin(request, payload: CreateAdminInputSchema):
+        """
+        This function creates an admin user with the given email, password, and role, and returns a
+        success message or an error message.
+        
+        :param request: The request object contains information about the incoming HTTP request, such as
+        the HTTP method, headers, and body
+        :param payload: The payload parameter is an instance of the CreateAdminInputSchema class, which
+        contains the input data for creating a new admin user. This input schema likely includes fields
+        such as email and password
+        :type payload: CreateAdminInputSchema
+        :return: A tuple is being returned, containing an integer and a dictionary. The integer
+        represents the HTTP status code, and the dictionary contains a message indicating whether the
+        operation was successful or not.
+        """
+        try:
+            UserModel.objects.create(
+                email=payload.email,
+                password=make_password(payload.password),
+                role='ADMIN'
+            )
+            return 200, {"message": "successfully created admin account."}
+        except:
+            return 500, {"message": "error on creating admin user!"}
+        
+    @router.get("/admin", response=List[UserOutputSchema])
+    def get_admin_list(request):
+        """
+        This function returns a list of all users with the role "ADMIN" or a message if no such users
+        are found.
+        
+        :param request: The request object is not used in the given code snippet. It is likely that this
+        function is a part of a Django view and the request object is passed as an argument to the view
+        function
+        :return: If the UserModel objects with role "ADMIN" are found, they will be returned. If no
+        UserModel objects with role "ADMIN" are found, a dictionary with a message "no admin users
+        found!" will be returned along with a status code of 200.
+        """
+        try:
+            users=UserModel.objects.all().filter(role="ADMIN")
+            return users
+        except UserModel.DoesNotExist as e:
+            return 200, {"message": "no admin users found!"}
+        
     @router.get("/", response=List[UserOutputSchema])
     def get_user_list(request):
         """

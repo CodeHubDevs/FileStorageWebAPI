@@ -17,6 +17,16 @@ class CreateUserInputSchema(Schema):
             raise ValueError('Email already exists')
         return value_data
     
+class CreateAdminInputSchema(Schema):
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+    @model_validator('email')
+    def validate_unique_username(cls, value_data: str) -> str:
+        if UserModel.objects.filter(email__icontains=value_data).exists():
+            raise ValueError('Email already exists')
+        return value_data
+    
 class UserOutputSchema(Schema):
     public_id: Optional[UUID] = None
     email: Optional[str] = None
