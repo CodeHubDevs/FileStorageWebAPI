@@ -102,9 +102,29 @@ class UsersMethodView:
         )
         return profile_pict_data
     
+    @router.get("profile-picture-lists/", response ={200: List[UploadProfileOutputPictureSchema], 404: Error})
+    def get_profile_picture_lists(request):
+        """
+        This function retrieves all profile pictures from the ProfilePictureModel and returns them with
+        a success status code, or returns a message with a 404 status code if no profile pictures are
+        found.
+        
+        :param request: The request parameter is an object that represents the HTTP request made by the
+        client to the server. It contains information such as the HTTP method used, the URL requested,
+        any query parameters, headers, and the request body
+        :return: A tuple is being returned, containing an HTTP status code and either a queryset of
+        ProfilePictureModel objects or a dictionary with a "message" key if no ProfilePictureModel
+        objects are found.
+        """
+        try:
+            profile_pict = ProfilePictureModel.objects.all()
+            return 200,  profile_pict
+        except ProfilePictureModel.DoesNotExist as e:
+            return 404, {"message": "No profile picture found!"}
+    
 
     @router.get("profile-picture/{user_id}", response ={200: List[UploadProfileOutputPictureSchema], 404: Error})
-    def get_specific_file(request, user_id: int):
+    def get_specific_profile_picture(request, user_id: int):
         """
         This function retrieves a specific profile picture for a given user ID and returns a 200 status
         code with the picture if it exists, or a 404 status code with an error message if it does not.
